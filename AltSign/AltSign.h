@@ -21,6 +21,7 @@
 #import <AltSign/ALTTeam.h>
 #import <AltSign/ALTDevice.h>
 #import <AltSign/ALTCertificate.h>
+#import <AltSign/ALTCertificateRequest.h>
 #import <AltSign/ALTAppID.h>
 #import <AltSign/ALTAppGroup.h>
 #import <AltSign/ALTProvisioningProfile.h>

@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithData:(NSData *)data;
 - (nullable instancetype)initWithP12Data:(NSData *)p12Data password:(nullable NSString *)password;
+- (instancetype)initWithName:(NSString *)name serialNumber:(NSString *)serialNumber data:(nullable NSData *)data;
 
 - (nullable NSData *)p12Data;
 - (nullable NSData *)encryptedP12DataWithPassword:(NSString *)password;

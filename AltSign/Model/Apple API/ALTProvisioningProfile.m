@@ -14,11 +14,11 @@
 #define ASN1_OBJECT_IDENTIFIER 0x06
 #define ASN1_OCTET_STRING 0x04
 
-@interface ALTProvisioningProfile ()
-
-@property (copy, nonatomic, readwrite, nullable) NSString *identifier;
-
-@end
+//@interface ALTProvisioningProfile ()
+//
+//@property (copy, nonatomic, readwrite, nullable) NSString *identifier;
+//
+//@end
 
 @implementation ALTProvisioningProfile
 
@@ -29,16 +29,16 @@
     {
         return nil;
     }
-    
+
     NSData *data = responseDictionary[@"encodedProfile"];
     if (data == nil)
     {
         return nil;
     }
-    
+
     self = [self initWithData:data];
     _identifier = [identifier copy];
-    
+
     return self;
 }
 
@@ -49,7 +49,7 @@
     {
         return nil;
     }
-    
+
     self = [self initWithData:data];
     return self;
 }
@@ -64,65 +64,65 @@
         {
             return nil;
         }
-        
+
         NSString *name = dictionary[@"Name"];
         NSUUID *UUID = [[NSUUID alloc] initWithUUIDString:dictionary[@"UUID"]];
-        
+
         NSString *teamIdentifier = [dictionary[@"TeamIdentifier"] firstObject];
-        
+
         NSDate *creationDate = dictionary[@"CreationDate"];
         NSDate *expirationDate = dictionary[@"ExpirationDate"];
-        
+
         NSDictionary<ALTEntitlement, id> *entitlements = dictionary[@"Entitlements"];
         NSArray<NSString *> *deviceIDs = dictionary[@"ProvisionedDevices"];
-        
+
         if (name == nil || UUID == nil || teamIdentifier == nil || creationDate == nil || expirationDate == nil || entitlements == nil || deviceIDs == nil)
         {
             return nil;
         }
-        
+
         BOOL isFreeProvisioningProfile = [dictionary[@"LocalProvision"] boolValue];
-        
+
         _data = [data copy];
-        
+
         _name = [name copy];
         _UUID = [UUID copy];
-        
+
         _teamIdentifier = [teamIdentifier copy];
-        
+
         _creationDate = [creationDate copy];
         _expirationDate = [expirationDate copy];
-        
+
         _entitlements = [entitlements copy];
         _deviceIDs = [deviceIDs copy];
-        
+
         _isFreeProvisioningProfile = isFreeProvisioningProfile;
-        
+
         [entitlements enumerateKeysAndObjectsUsingBlock:^(ALTEntitlement entitlement, id value, BOOL *stop) {
             if (![entitlement isEqualToString:ALTEntitlementApplicationIdentifier])
             {
                 return;
             }
-            
+
             NSUInteger location = [(NSString *)value rangeOfString:@"."].location;
             if (location == NSNotFound)
             {
                 return;
             }
-            
+
             NSString *bundleIdentifier = [value substringFromIndex:location + 1];
             self->_bundleIdentifier = [bundleIdentifier copy];
-            
+
             *stop = YES;
         }];
-        
+
         if (_bundleIdentifier == nil)
         {
             return nil;
         }
-        
+
         NSMutableArray<ALTCertificate *> *certificates = [NSMutableArray array];
-        
+
         NSArray *certificatesArray = dictionary[@"DeveloperCertificates"];
         for (NSData *data in certificatesArray)
         {
@@ -132,10 +132,10 @@
                 [certificates addObject:certificate];
             }
         }
-        
+
         _certificates = [certificates copy];
     }
-    
+
     return self;
 }
 
@@ -191,7 +191,7 @@
 
         return size;
     };
-    
+
     unsigned char * (^advanceToNextItem)(unsigned char *) = ^unsigned char *(unsigned char *pointer) {
         unsigned char *nextItem = pointer;
 
@@ -207,14 +207,14 @@
 
         return nextItem;
     };
-    
+
     unsigned char * (^skipNextItem)(unsigned char *) = ^unsigned char *(unsigned char *pointer) {
         size_t size = itemSize(pointer);
-        
+
         unsigned char *nextItem = pointer + 2 + size;
         return nextItem;
     };
-    
+
 
     /* Start parsing */
     unsigned char *pointer = (unsigned char *)encodedData.bytes;
@@ -222,68 +222,68 @@
     {
         return nil;
     }
-    
+
     pointer = advanceToNextItem(pointer);
     if (*pointer != ASN1_OBJECT_IDENTIFIER)
     {
         return nil;
     }
-    
+
     pointer = skipNextItem(pointer);
     if (*pointer != ASN1_CONTAINER)
     {
         return nil;
     }
-    
+
     pointer = advanceToNextItem(pointer);
     if (*pointer != ASN1_SEQUENCE)
     {
         return nil;
     }
-    
+
     pointer = advanceToNextItem(pointer);
-    
+
     // Skip 2 items.
     for (int i = 0; i < 2; i++)
     {
         pointer = skipNextItem(pointer);
     }
-    
+
     if (*pointer != ASN1_SEQUENCE)
     {
         return nil;
     }
-    
+
     pointer = advanceToNextItem(pointer);
     if (*pointer != ASN1_OBJECT_IDENTIFIER)
     {
         return nil;
     }
-    
+
     pointer = skipNextItem(pointer);
     if (*pointer != ASN1_CONTAINER)
     {
         return nil;
     }
-    
+
     pointer = advanceToNextItem(pointer);
     if (*pointer != ASN1_OCTET_STRING)
     {
         return nil;
     }
-    
+
     size_t length = itemSize(pointer);
     pointer = advanceToNextItem(pointer);
-    
+
     NSData *data = [NSData dataWithBytes:(const void *)pointer length:length];
-    
+
     NSError *error = nil;
     NSDictionary *dictionary = [NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:&error];
     if (dictionary == nil)
     {
         NSLog(@"Failed to parse provisioning profile from data. %@", error);
     }
-    
+
     return dictionary;
 }
 
@@ -301,7 +301,7 @@
     {
         return NO;
     }
-    
+
     BOOL isEqual = ([self.UUID isEqual:profile.UUID] && [self.data isEqualToData:profile.data]);
     return isEqual;
 }
